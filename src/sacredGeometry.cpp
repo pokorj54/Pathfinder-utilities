@@ -1,7 +1,7 @@
 #include "sacredGeometry.hpp"
+#include "Helpers/fraction.hpp"
 
 #include <string>
-#include <functional>
 
 using namespace std;
 
@@ -21,31 +21,15 @@ class ExprAndValue
 {
     public:
         ExprAndValue() = default;
-        ExprAndValue(int value): value(value), expression(to_string(value)){}
-        int value;
+        ExprAndValue(Fraction value): value(value), expression(value.ToString()){}
+        Fraction value;
         string expression;
-        typedef int (*func)(int, int);
+        typedef Fraction (*func)(const Fraction &, const Fraction &);
         ExprAndValue Combine(const ExprAndValue & that, func f, const string & funcRepresentation) const
         {
             ExprAndValue result = ExprAndValue(f(this->value, that.value));
             result.expression = "(" + this->expression + funcRepresentation + that.expression + ")";
             return result;
-        }
-        ExprAndValue operator + (const ExprAndValue & that) const
-        {
-            return Combine(that, [](int x, int y) -> int {return x + y;}, "+");
-        }
-        ExprAndValue operator * (const ExprAndValue & that) const
-        {
-            return Combine(that, [](int x, int y) -> int {return x * y;}, "*");
-        }
-        ExprAndValue operator - (const ExprAndValue & that) const
-        {
-            return Combine(that, [](int x, int y) -> int {return x - y;}, "-");
-        }
-        ExprAndValue operator / (const ExprAndValue & that) const
-        {
-            return Combine(that, [](int x, int y) -> int {return x / y;}, "/");
         }
 };
 
@@ -55,7 +39,7 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
     {
         for(int i : PRIMECONSTANTS[spellLevel - 1])
         {
-            if(i == exprs[0].value)
+            if((double)i == exprs[0].value.ToDouble())
             {
                 return exprs[0].expression;
             }
@@ -69,31 +53,27 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
         {
             ExprAndValue e2 = exprs[j];
             exprs[j] = exprs[size-2];
-            ExprAndValue eres = e1 + e2;
-            exprs[size-2] = eres;
+            exprs[size-2] = e1.Combine(e2, Add, "+");
             string tmp = CombineExpressions(spellLevel, exprs, size-1);
             if(tmp != "")
             {
                 return tmp;    
             }
-            eres = e1 * e2;
-            exprs[size-2] = eres;
+            exprs[size-2] = e1.Combine(e2, Subtract, "-");
             tmp = CombineExpressions(spellLevel, exprs, size-1);
             if(tmp != "")
             {
                 return tmp;    
             }
-            eres = e1 - e2;
-            exprs[size-2] = eres;
+            exprs[size-2] = e1.Combine(e2, Multiply, "*");
             tmp = CombineExpressions(spellLevel, exprs, size-1);
             if(tmp != "")
             {
                 return tmp;    
             }
-            if(e2.value != 0)
+            if(e2.value.ToDouble() != (double)0)
             {
-                eres = e1 / e2;
-                exprs[size-2] = eres;
+                exprs[size-2] = e1.Combine(e2, Divide, "/");
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
                 if(tmp != "")
                 {
@@ -114,7 +94,7 @@ string GetDesiredExpression(int spellLevel, int rolledDices[], int size)
     ExprAndValue * exprs = new ExprAndValue[size];
     for(int i = 0; i < size; ++i)
     {
-        exprs[i] = ExprAndValue(rolledDices[i]);
+        exprs[i] = ExprAndValue(Fraction(rolledDices[i]));
     }
     return CombineExpressions(spellLevel, exprs, size);
 }

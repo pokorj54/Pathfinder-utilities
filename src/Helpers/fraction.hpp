@@ -3,6 +3,7 @@
 class Fraction
 {
     public:
+        Fraction() = default;
         Fraction(int numerator, int denominator = 1);
         std::string ToString() const;
         int ToInt() const;
@@ -16,3 +17,7 @@ class Fraction
     friend Fraction Multiply(const Fraction & f1, const Fraction & f2);
     friend Fraction Divide(const Fraction & f1, const Fraction & f2);
 };
+Fraction Add(const Fraction & f1, const Fraction & f2);
+Fraction Subtract(const Fraction & f1, const Fraction & f2);
+Fraction Multiply(const Fraction & f1, const Fraction & f2);
+Fraction Divide(const Fraction & f1, const Fraction & f2);
