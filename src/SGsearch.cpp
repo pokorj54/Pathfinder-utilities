@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cstdint>
+#include <cmath>
 
 using namespace std;
 
@@ -10,6 +12,13 @@ const int maxDices = 20;
 const int maxDiceValue = 8;
 const int limitedDiceValue = 6;
 const bool showIntermedietResults = false;
+
+int64_t factorial(int n)
+{
+    int64_t values[] = {1,1,2,6,24,120,720,5040,40320,362880,3628800,39916800,479001600,6227020800,87178291200,1307674368000,20922789888000,355687428096000,6402373705728000,121645100408832000,2432902008176640000};
+    return values[n];
+}
+
 int main(void)
 {
     int diceDelimiters[maxDiceValue+1];
@@ -21,7 +30,8 @@ int main(void)
         diceDelimiters[0] = currentNoDices;
         for(int currentSpellLevel = 1; currentSpellLevel <= maxSpellLevel; ++currentSpellLevel)
         {
-            int possibleCombinations = 0, successfullCombinations = 0, possibleLimitedCombinations = 0, succesfullLimitedCombinations = 0;
+            int possibleCombinations = pow(maxDiceValue, currentNoDices), successfullCombinations = 0;
+            int possibleLimitedCombinations = pow(limitedDiceValue, currentNoDices), succesfullLimitedCombinations = 0;
             diceDelimiters[1] = -1;
             for(int k = 2; k < maxDiceValue; ++k)
             {
@@ -29,6 +39,7 @@ int main(void)
             }
             while(diceDelimiters[maxDiceValue-1] < currentNoDices)
             {
+                int64_t permutations = factorial(currentNoDices);
                 if(diceDelimiters[1] < currentNoDices)
                 {
                     diceDelimiters[1] += 1;
@@ -46,6 +57,7 @@ int main(void)
                 for(int n = 1; n <= maxDiceValue; ++n)
                 {
                     int difference = diceDelimiters[n-1] - diceDelimiters[n];
+                    permutations /= factorial(difference);
                     for(int o = 0; o < difference; ++o)
                     {
                         dices[currentPosition] = n;
@@ -65,16 +77,11 @@ int main(void)
                 }
                 if(tmp != "")
                 {
-                    ++successfullCombinations;
+                    successfullCombinations += permutations;
                     if(dices[currentNoDices-1] <= limitedDiceValue)
                     {
-                        ++succesfullLimitedCombinations;
+                        succesfullLimitedCombinations += permutations;
                     }
-                }
-                ++possibleCombinations;
-                if(dices[currentNoDices-1] <= limitedDiceValue)
-                {
-                    ++possibleLimitedCombinations;
                 }
             }
             cout << setprecision(5)  << "NoD: " << currentNoDices << ", SL: " << currentSpellLevel<< " = PC: "
