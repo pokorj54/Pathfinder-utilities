@@ -53,23 +53,27 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
         {
             ExprAndValue e2 = exprs[j];
             exprs[j] = exprs[size-2];
-            exprs[size-2] = e1.Combine(e2, Add, "+");
-            string tmp = CombineExpressions(spellLevel, exprs, size-1);
-            if(tmp != "")
+            string tmp;
+            if(j >= i)
             {
-                return tmp;    
+                exprs[size-2] = e1.Combine(e2, Add, "+");
+                tmp = CombineExpressions(spellLevel, exprs, size-1);
+                if(tmp != "")
+                {
+                    return tmp;
+                }
+                exprs[size-2] = e1.Combine(e2, Multiply, "*");
+                tmp = CombineExpressions(spellLevel, exprs, size-1);
+                if(tmp != "")
+                {
+                    return tmp;
+                }
             }
             exprs[size-2] = e1.Combine(e2, Subtract, "-");
             tmp = CombineExpressions(spellLevel, exprs, size-1);
             if(tmp != "")
             {
-                return tmp;    
-            }
-            exprs[size-2] = e1.Combine(e2, Multiply, "*");
-            tmp = CombineExpressions(spellLevel, exprs, size-1);
-            if(tmp != "")
-            {
-                return tmp;    
+                return tmp;
             }
             if(e2.value.ToDouble() != (double)0)
             {
@@ -77,7 +81,7 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
                 if(tmp != "")
                 {
-                    return tmp;    
+                    return tmp;
                 }
             }
             exprs[size-2] = exprs[j];
