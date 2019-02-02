@@ -2,6 +2,7 @@
 #include "Helpers/fraction.hpp"
 
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -32,7 +33,37 @@ class ExprAndValue
             return result;
         }
 };
-
+int GetHigherBound(int * values, int size)
+{
+    int res = 1;
+    int ones = 0;
+    int twos = 0;
+    for(int i = 0; i < size; ++i)
+    {
+        if(values[i] == 1)
+        {
+            ++ones;
+        }
+        else if(values[i] == 2)
+        {
+            ++twos;
+        }
+        else
+        {
+            res *= values[i];
+        }
+    }
+    if(ones > twos)
+    {
+        res *= pow(3, twos+(ones-twos)/3)*2;
+    }
+    else
+    {
+        res *= pow(3, ones);
+        res *= pow(2, twos-ones);
+    }
+    return res;
+}
 string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
 {
     if(size == 1)
@@ -95,6 +126,10 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
 
 string GetDesiredExpression(int spellLevel, int rolledDices[], int size)
 {
+    if(GetHigherBound(rolledDices, size) < PRIMECONSTANTS[spellLevel-1][0])
+    {
+         return "";
+    }
     ExprAndValue * exprs = new ExprAndValue[size];
     for(int i = 0; i < size; ++i)
     {
