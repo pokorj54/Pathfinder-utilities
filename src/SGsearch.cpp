@@ -30,8 +30,8 @@ int main(void)
         diceDelimiters[0] = currentNoDices;
         for(int currentSpellLevel = 1; currentSpellLevel <= maxSpellLevel; ++currentSpellLevel)
         {
-            int possibleCombinations = pow(maxDiceValue, currentNoDices), successfullCombinations = 0;
-            int possibleLimitedCombinations = pow(limitedDiceValue, currentNoDices), succesfullLimitedCombinations = 0;
+            int64_t possibleCombinations = pow(maxDiceValue, currentNoDices), successfullCombinations = 0;
+            int64_t possibleLimitedCombinations = pow(limitedDiceValue, currentNoDices), succesfullLimitedCombinations = 0;
             diceDelimiters[1] = -1;
             for(int k = 2; k < maxDiceValue; ++k)
             {
