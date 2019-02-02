@@ -41,6 +41,14 @@ Fraction Fraction::Normalize()
     }
     return *this;
 }
+bool Fraction::operator < (const Fraction & other) const
+{
+    return ToDouble() < other.ToDouble();
+}
+bool Fraction::operator != (const Fraction & other) const
+{
+    return ToDouble() != other.ToDouble();
+}
 Fraction Add(const Fraction & f1, const Fraction & f2)
 {
     return Fraction(f1.numerator * f2.denominator + f2.numerator*f1.denominator, f1.denominator * f2.denominator).Normalize();

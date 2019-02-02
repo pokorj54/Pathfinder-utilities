@@ -8,6 +8,8 @@ class Fraction
         std::string ToString() const;
         int ToInt() const;
         double ToDouble() const;
+        bool operator < (const Fraction & other) const; 
+        bool operator != (const Fraction & other) const; 
     private:
         int numerator;
         int denominator;
