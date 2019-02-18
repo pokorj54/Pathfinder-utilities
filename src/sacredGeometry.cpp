@@ -101,10 +101,13 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                 }
             }
             exprs[size-2] = e1.Combine(e2, Subtract, "-");
-            tmp = CombineExpressions(spellLevel, exprs, size-1);
-            if(tmp != "")
+            if(!(exprs[size-2].value < Fraction(0)))//no point of using negative numbers
             {
-                return tmp;
+                tmp = CombineExpressions(spellLevel, exprs, size-1);
+                if(tmp != "")
+                {
+                    return tmp;
+                }
             }
             if(e2.value.ToDouble() != (double)0)
             {
