@@ -93,15 +93,18 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                 {
                     return tmp;
                 }
-                exprs[size-2] = e1.Combine(e2, Multiply, "*");
-                tmp = CombineExpressions(spellLevel, exprs, size-1);
-                if(tmp != "")
+                if(e1.value != Fraction(2) || e2.value != Fraction(2)) //2*2 == 2+2
                 {
-                    return tmp;
+                    exprs[size-2] = e1.Combine(e2, Multiply, "*");
+                    tmp = CombineExpressions(spellLevel, exprs, size-1);
+                    if(tmp != "")
+                    {
+                        return tmp;
+                    }
                 }
             }
             exprs[size-2] = e1.Combine(e2, Subtract, "-");
-            if(!(exprs[size-2].value < Fraction(0)))//no point of using negative numbers
+            if(!(exprs[size-2].value < Fraction(0)) && e1.value != exprs[size-2].value)//no point of using negative numbers, we already added 0
             {
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
                 if(tmp != "")
@@ -109,7 +112,7 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                     return tmp;
                 }
             }
-            if(e2.value.ToDouble() != (double)0)
+            if(e2.value.ToDouble() != (double)0 && e2.value != Fraction(1)) //we already multiplied by zero
             {
                 exprs[size-2] = e1.Combine(e2, Divide, "/");
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
