@@ -25,6 +25,26 @@ int main(void)
     assert(Multiply(Fraction(1,4), Fraction(2)).ToDouble() == 0.5);
     assert(Subtract(Fraction(3,4), Fraction(1,2)).ToString() == "1/4");
     assert(Divide(Fraction(1,2), Fraction(1,4)).ToDouble() == 2);
+
+    Fraction f1 = Fraction(1,2), f2 = 2;
+    assert(f1 < f2);
+    assert(!(f2 < f1));
+    assert(!(f1 < f1));
+    assert(f2 > f1);
+    assert(!(f1 > f2));
+    assert(!(f2 > f2));
+    assert(f1 <= f2);
+    assert(!(f2 <= f1));
+    assert(f1 <= f1);
+    assert(f2 >= f1);
+    assert(!(f1 >= f2));
+    assert(f2 >= f2);
+    assert(f1 != f2);
+    assert(f2 != f1);
+    assert(!(f1 != f1));
+    assert(f1 == f1);
+    assert(!(f1 == f2));
+    assert(!(f2 == f1));
     
     //SacredGeometry
     int a[] = {3};

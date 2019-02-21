@@ -43,11 +43,28 @@ Fraction Fraction::Normalize()
 }
 bool Fraction::operator < (const Fraction & other) const
 {
-    return ToDouble() < other.ToDouble();
+    Fraction f = Divide(*this, other);
+    return f.numerator < f.denominator;
+}
+bool Fraction::operator > (const Fraction & other) const
+{
+    return other < *this;
+}
+bool Fraction::operator <= (const Fraction & other) const
+{
+    return !(*this > other);
+}
+bool Fraction::operator >= (const Fraction & other) const
+{
+    return !(*this < other);
 }
 bool Fraction::operator != (const Fraction & other) const
 {
-    return ToDouble() != other.ToDouble();
+    return *this < other || other < *this; 
+}
+bool Fraction::operator == (const Fraction & other) const
+{
+    return !(*this != other);
 }
 Fraction Add(const Fraction & f1, const Fraction & f2)
 {
