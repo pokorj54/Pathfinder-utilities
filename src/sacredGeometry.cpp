@@ -93,7 +93,7 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                 {
                     return tmp;
                 }
-                if((e1.value != Fraction(2) || e2.value != Fraction(2)) && (e1.value != Fraction(0) || e2.value != Fraction(0))) //2*2 == 2+2
+                if((e1.value != Fraction(2) || e2.value != Fraction(2)) && (e1.value != Fraction(0) || e2.value != Fraction(0))) //2*2 == 2+2, 0*0=0+0
                 {
                     exprs[size-2] = e1.Combine(e2, Multiply, "*");
                     tmp = CombineExpressions(spellLevel, exprs, size-1);
@@ -112,7 +112,7 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                     return tmp;
                 }
             }
-            if(e2.value != Fraction(1) && e2.value != Fraction(0) && e1.value != Fraction(0)) //we already multiplied by zero and by one
+            if(e2.value != Fraction(1) && e2.value != Fraction(0) && e1.value != Fraction(0) && (e1.value != Fraction(4) || e2.value != Fraction(2))) //we already multiplied by zero and substracted 2 from 4
             {
                 exprs[size-2] = e1.Combine(e2, Divide, "/");
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
