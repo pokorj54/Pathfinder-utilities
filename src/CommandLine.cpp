@@ -2,6 +2,7 @@
 
 #include "Exceptions/Exception.hpp"
 #include "Exceptions/InvalidNoArgumentsException.hpp"
+#include "Exceptions/InvalidArgumentException.hpp"
 
 #include "sacredGeometry.hpp"
 #include "arithmancy.hpp"
@@ -73,6 +74,25 @@ void CommandLine::Arguments::ThrowIfNotEmpty()
 int CommandLine::Arguments::GetNoArguments() const
 {
     return arguments.size();
+}
+
+int TryConvertingStringToInt(const string & input, int argPos = 0)
+{
+    int res;
+    try
+    {
+        res = stoi(input);
+    }
+    catch(const std::invalid_argument& e)
+    {
+        throw InvalidArgumentException(input,argPos);
+    }
+    
+    if(input != to_string(res))
+    {
+        throw InvalidArgumentException(input,argPos);
+    }            
+    return res;
 }
 
 string _GetCommandAndArgument(string command, CommandLine::Arguments & outArguments)
@@ -218,12 +238,12 @@ void CommandLine::HandleRoll(Arguments & args)
 
 void CommandLine::HandleSacredGeometry(Arguments & args)
 {
-    int spellLevel = stoi(args.PopFirst());
+    int spellLevel = TryConvertingStringToInt(args.PopFirst(), 0);
     int size = args.GetNoArguments();
     int * dices = new int[size];
     for(int i = 0; i < size; ++i)
     {
-        dices[i] = stoi(args.PopFirst());
+        dices[i] = TryConvertingStringToInt(args.PopFirst(), i + 1);
     }
     string expression = GetDesiredExpression(spellLevel, dices, size);
     if(expression == "")

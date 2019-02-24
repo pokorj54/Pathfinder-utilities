@@ -20,7 +20,7 @@ SG:
 clean: 
 	rm -rf ./bin/ $(PROGRAMTEST) $(PROGRAMSGSEARCH)
 
-cmain: bin/fraction.o bin/arithmancy.o bin/dices.o bin/sacredGeometry.o bin/sacredGeometry.o bin/dices.o bin/InvalidNoArgumentsException.o bin/CommandLine.o bin/main.o
+cmain: bin/fraction.o bin/arithmancy.o bin/dices.o bin/sacredGeometry.o bin/sacredGeometry.o bin/dices.o bin/InvalidNoArgumentsException.o bin/InvalidArgumentException.o bin/CommandLine.o bin/main.o
 	$(CL) $^ -o $(PROGRAM)
 
 ctest: bin/fraction.o bin/arithmancy.o bin/dices.o bin/sacredGeometry.o bin/test.o

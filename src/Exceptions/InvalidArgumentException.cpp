@@ -5,5 +5,5 @@ InvalidArgumentException::InvalidArgumentException(const std::string & arg, int 
 
 void InvalidArgumentException::Message(std::ostream & o) const
 {
-    o << "Argument " << arg << " on position " << position << " isn't valid" << std::endl;
+    o << "Argument \"" << arg << "\" on position " << position << " isn't valid" << std::endl;
 }
