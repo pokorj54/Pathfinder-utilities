@@ -61,7 +61,12 @@ class CommandLine
          * 
          */
         static std::unordered_map<std::string, std::pair<HandleCmd,std::string>> cmdTranslation;
-
+        /**
+         * @brief Static map with aliases to commands
+         * 
+         */
+        static std::unordered_map<std::string, std::string> aliases;
+        
         //methods that handles commands
         void HandleHelp(Arguments & args);
         void HandleRoll(Arguments & args);

@@ -17,12 +17,20 @@ using namespace std;
  * @brief Initialization of commands
  * 
  */
-unordered_map<string, std::pair<CommandLine::HandleCmd,std::string>> CommandLine::cmdTranslation =
+unordered_map<string, pair<CommandLine::HandleCmd,string>> CommandLine::cmdTranslation =
 {
     {"help", make_pair(&CommandLine::HandleHelp, "0: shows all commands and their description, 1 - command: shows description for command")},
     {"roll", make_pair(&CommandLine::HandleRoll, "1 - roll string: string representing roll")},
-    {"sacredGeometry", make_pair(&CommandLine::HandleSacredGeometry, "2+ - spell level: from 1 to 9, dices: any number of integers")},
+    {"sacredgeometry", make_pair(&CommandLine::HandleSacredGeometry, "2+ - spell level: from 1 to 9, dices: any number of integers")},
     {"arithmancy", make_pair(&CommandLine::HandleArithmancy, "1 - spell name: name of spell without metamagic")},
+};
+
+unordered_map<string, string> CommandLine::aliases =
+{
+    {"h", "help"},
+    {"sg", "sacredgeometry"},
+    {"die", "roll"},
+    {"ar", "arithmancy"}
 };
 
 CommandLine::CommandLine(): input(&cin), output(&cout)
@@ -140,6 +148,7 @@ void CommandLine::HandleCommands()
 
         Arguments arguments;
         string cmdName = _GetCommandAndArgument(fullCommand, arguments);
+        transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::tolower);
 
         if(cmdName == "exit") //it's the only command that can affect the command cycle 
         {
@@ -147,11 +156,15 @@ void CommandLine::HandleCommands()
         }
 
         HandleCmd method;
-        try
+        if(cmdTranslation.count(cmdName) > 0)
         {
             method = cmdTranslation.at(cmdName).first;
         }
-        catch(const out_of_range & e)
+        else if (aliases.count(cmdName) > 0)
+        {
+            method = cmdTranslation.at(aliases.at(cmdName)).first;
+        }
+        else
         {
             *output << "Unknown command" << endl;
             continue;
