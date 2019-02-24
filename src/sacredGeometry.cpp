@@ -52,6 +52,10 @@ int GetHigherBound(int * values, int size)
         {
             res *= values[i];
         }
+        if(res > PRIMECONSTANTS[(sizeof(PRIMECONSTANTS)/sizeof(*PRIMECONSTANTS))-1][0])
+        {
+            return res;
+        }
     }
     if(ones > twos)
     {
