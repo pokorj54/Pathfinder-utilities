@@ -24,7 +24,7 @@ int main(void)
     int diceDelimiters[maxDiceValue+1];
     diceDelimiters[maxDiceValue] = 0;
     
-    for(int currentNoDices = 1; currentNoDices < maxDices; ++currentNoDices)
+    for(int currentNoDices = 1; currentNoDices <= maxDices; ++currentNoDices)
     {
         int * dices = new int[currentNoDices];
         diceDelimiters[0] = currentNoDices;

@@ -1,17 +1,11 @@
-#include "dices.hpp"
+#include "CommandLine.hpp"
 
 #include <iostream>
 
 using namespace std;
 int main(void)
 {
-    string cmd = "";
-    DiceRoller diceRoller;
-    cin >> cmd;
-    while(cmd != "exit")
-    {
-        diceRoller.ParseDiceString(cmd).Print();
-        cin >> cmd;
-    }
+    CommandLine c;
+    c.HandleCommands();
     return 0;
 }
