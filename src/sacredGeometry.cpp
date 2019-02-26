@@ -22,13 +22,18 @@ class ExprAndValue
 {
     public:
         ExprAndValue() = default;
-        ExprAndValue(Fraction value): value(value), expression(value.ToString()){}
+        ExprAndValue(Fraction value, bool canSubstract = true, bool canDivide = true): value(value),
+        expression(value.ToString()), canSubstract(canSubstract), canDivide(canDivide)
+        {}
         Fraction value;
         string expression;
+        bool canSubstract;
+        bool canDivide;
         typedef Fraction (*func)(const Fraction &, const Fraction &);
-        ExprAndValue Combine(const ExprAndValue & that, func f, const string & funcRepresentation) const
+        ExprAndValue Combine(const ExprAndValue & that, func f, const string & funcRepresentation,
+        bool canSubstract, bool canDivide) const
         {
-            ExprAndValue result = ExprAndValue(f(this->value, that.value));
+            ExprAndValue result = ExprAndValue(f(this->value, that.value), canSubstract, canDivide);
             result.expression = "(" + this->expression + funcRepresentation + that.expression + ")";
             return result;
         }
@@ -91,15 +96,18 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
             string tmp;
             if(j >= i)
             {
-                exprs[size-2] = e1.Combine(e2, Add, "+");
-                tmp = CombineExpressions(spellLevel, exprs, size-1);
-                if(tmp != "")
+                if(e1.canSubstract || e2.canSubstract)
                 {
-                    return tmp;
+                    exprs[size-2] = e1.Combine(e2, Add, "+",e1.canSubstract && e2.canSubstract, true);
+                    tmp = CombineExpressions(spellLevel, exprs, size-1);
+                    if(tmp != "")
+                    {
+                        return tmp;
+                    }
                 }
-                if((e1.value != Fraction(2) || e2.value != Fraction(2)) && (e1.value != Fraction(0) || e2.value != Fraction(0))) //2*2 == 2+2, 0*0=0+0
+                if((e1.canDivide || e2.canDivide) && (e1.value != Fraction(2) || e2.value != Fraction(2)) && (e1.value != Fraction(0) || e2.value != Fraction(0))) //2*2 == 2+2, 0*0=0+0
                 {
-                    exprs[size-2] = e1.Combine(e2, Multiply, "*");
+                    exprs[size-2] = e1.Combine(e2, Multiply, "*", true, e1.canDivide && e2.canDivide);
                     tmp = CombineExpressions(spellLevel, exprs, size-1);
                     if(tmp != "")
                     {
@@ -107,8 +115,8 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                     }
                 }
             }
-            exprs[size-2] = e1.Combine(e2, Subtract, "-");
-            if(exprs[size-2].value >= Fraction(0) && e1.value != exprs[size-2].value)//no point of using negative numbers, we already added 0
+            exprs[size-2] = e1.Combine(e2, Subtract, "-", false, true);
+            if(e2.canSubstract && exprs[size-2].value >= Fraction(0) && e1.value != exprs[size-2].value)//no point of using negative numbers, we already added 0
             {
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
                 if(tmp != "")
@@ -116,9 +124,9 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
                     return tmp;
                 }
             }
-            if(e2.value != Fraction(1) && e2.value != Fraction(0) && e1.value != Fraction(0) && (e1.value != Fraction(4) || e2.value != Fraction(2))) //we already multiplied by zero and substracted 2 from 4
+            if(e2.canDivide && e2.value != Fraction(1) && e2.value != Fraction(0) && e1.value != Fraction(0) && (e1.value != Fraction(4) || e2.value != Fraction(2))) //we already multiplied by zero and substracted 2 from 4
             {
-                exprs[size-2] = e1.Combine(e2, Divide, "/");
+                exprs[size-2] = e1.Combine(e2, Divide, "/", true, false);
                 tmp = CombineExpressions(spellLevel, exprs, size-1);
                 if(tmp != "")
                 {
