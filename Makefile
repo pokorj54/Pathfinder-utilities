@@ -1,6 +1,6 @@
-CL=g++
+CL=g++ -pthread
 CC=g++
-FLAGS=-Wall -pedantic -Wno-long-long -O3 -ggdb -std=c++11
+FLAGS=-Wall -pedantic -Wno-long-long -O3 -ggdb -std=c++11 -lpthread
 
 PROGRAM=PFutil.out
 PROGRAMTEST=test.out
