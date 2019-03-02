@@ -22,18 +22,20 @@ class ExprAndValue
 {
     public:
         ExprAndValue() = default;
-        ExprAndValue(Fraction value, bool canSubstract = true, bool canDivide = true): value(value),
-        expression(value.ToString()), canSubstract(canSubstract), canDivide(canDivide)
+        ExprAndValue(Fraction value, int index, bool canSubstract = true, bool canDivide = true): 
+        value(value), expression(value.ToString()), canSubstract(canSubstract), canDivide(canDivide),
+        pLowIndex(index), pHighIndex(index), mLowIndex(index), mHighIndex(index)
         {}
         Fraction value;
         string expression;
         bool canSubstract;
         bool canDivide;
+        int pLowIndex, pHighIndex, mLowIndex, mHighIndex;
         typedef Fraction (*func)(const Fraction &, const Fraction &);
         ExprAndValue Combine(const ExprAndValue & that, func f, const string & funcRepresentation,
-        bool canSubstract, bool canDivide) const
+        bool canSubstract, bool canDivide, int index) const
         {
-            ExprAndValue result = ExprAndValue(f(this->value, that.value), canSubstract, canDivide);
+            ExprAndValue result = ExprAndValue(f(this->value, that.value),index, canSubstract, canDivide);
             result.expression = "(" + this->expression + funcRepresentation + that.expression + ")";
             return result;
         }
@@ -73,7 +75,7 @@ int GetHigherBound(int * values, int size)
     }
     return res;
 }
-string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
+string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size, int originalSize)
 {
     if(size == 1)
     {
@@ -94,31 +96,32 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
             ExprAndValue e2 = exprs[j];
             exprs[j] = exprs[size-2];
             string tmp;
-            if(j >= i)
+            if(e1.pHighIndex < e2.pLowIndex && (e1.canSubstract || e2.canSubstract))
             {
-                if(e1.canSubstract || e2.canSubstract)
+                exprs[size-2] = e1.Combine(e2, Add, "+",e1.canSubstract && e2.canSubstract, true, 2*originalSize-size);
+                exprs[size-2].pLowIndex = e1.pLowIndex;
+                exprs[size-2].pHighIndex = e1.pHighIndex;
+                tmp = CombineExpressions(spellLevel, exprs, size-1, originalSize);
+                if(tmp != "")
                 {
-                    exprs[size-2] = e1.Combine(e2, Add, "+",e1.canSubstract && e2.canSubstract, true);
-                    tmp = CombineExpressions(spellLevel, exprs, size-1);
-                    if(tmp != "")
-                    {
-                        return tmp;
-                    }
-                }
-                if((e1.canDivide || e2.canDivide) && (e1.value != Fraction(2) || e2.value != Fraction(2)) && (e1.value != Fraction(0) || e2.value != Fraction(0))) //2*2 == 2+2, 0*0=0+0
-                {
-                    exprs[size-2] = e1.Combine(e2, Multiply, "*", true, e1.canDivide && e2.canDivide);
-                    tmp = CombineExpressions(spellLevel, exprs, size-1);
-                    if(tmp != "")
-                    {
-                        return tmp;
-                    }
+                    return tmp;
                 }
             }
-            exprs[size-2] = e1.Combine(e2, Subtract, "-", false, true);
+            if(e1.mHighIndex < e2.mLowIndex && (e1.canDivide || e2.canDivide) && (e1.value != Fraction(2) || e2.value != Fraction(2)) && (e1.value != Fraction(0) || e2.value != Fraction(0))) //2*2 == 2+2, 0*0=0+0
+            {
+                exprs[size-2] = e1.Combine(e2, Multiply, "*", true, e1.canDivide && e2.canDivide, 2*originalSize-size);
+                exprs[size-2].mLowIndex = e1.mLowIndex;
+                exprs[size-2].mHighIndex = e1.mHighIndex;
+                tmp = CombineExpressions(spellLevel, exprs, size-1, originalSize);
+                if(tmp != "")
+                {
+                    return tmp;
+                }
+            }
+            exprs[size-2] = e1.Combine(e2, Subtract, "-", false, true, 2*originalSize-size);
             if(e2.canSubstract && exprs[size-2].value >= Fraction(0) && e1.value != exprs[size-2].value)//no point of using negative numbers, we already added 0
             {
-                tmp = CombineExpressions(spellLevel, exprs, size-1);
+                tmp = CombineExpressions(spellLevel, exprs, size-1, originalSize);
                 if(tmp != "")
                 {
                     return tmp;
@@ -126,8 +129,8 @@ string CombineExpressions(int spellLevel, ExprAndValue * exprs, int size)
             }
             if(e2.canDivide && e2.value != Fraction(1) && e2.value != Fraction(0) && e1.value != Fraction(0) && (e1.value != Fraction(4) || e2.value != Fraction(2))) //we already multiplied by zero and substracted 2 from 4
             {
-                exprs[size-2] = e1.Combine(e2, Divide, "/", true, false);
-                tmp = CombineExpressions(spellLevel, exprs, size-1);
+                exprs[size-2] = e1.Combine(e2, Divide, "/", true, false, 2*originalSize-size);
+                tmp = CombineExpressions(spellLevel, exprs, size-1, originalSize);
                 if(tmp != "")
                 {
                     return tmp;
@@ -151,7 +154,7 @@ string GetDesiredExpression(int spellLevel, int rolledDices[], int size)
     ExprAndValue * exprs = new ExprAndValue[size];
     for(int i = 0; i < size; ++i)
     {
-        exprs[i] = ExprAndValue(Fraction(rolledDices[i]));
+        exprs[i] = ExprAndValue(Fraction(rolledDices[i]), i);
     }
-    return CombineExpressions(spellLevel, exprs, size);
+    return CombineExpressions(spellLevel, exprs, size, size);
 }
